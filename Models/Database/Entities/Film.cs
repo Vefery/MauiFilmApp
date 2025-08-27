@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MauiTestApp.Models.Database.Entities
+{
+    // Сущность "Фильм" для базы данных. В качестве жанра ссылка на сущность из таблицы Genres
+    public class Film
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public required string Description { get; set; }
+        public DateOnly ReleaseDate {  get; set; }
+        public int GenreId { get; set; }
+        public Genre? Genre { get; set; }
+        public ICollection<Actor> Actors { get; } = [];
+    }
+}
