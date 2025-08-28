@@ -9,42 +9,81 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiTestApp.DTOs;
 using MauiTestApp.Services;
+using MauiTestApp.Services.Interfaces;
 
 namespace MauiTestApp.ViewModels
 {
-    internal class SearchViewModel : ObservableObject
+    public enum SearchBy
+    {
+        Name,
+        Actor
+    }
+    public class PickerItem
+    {
+        public SearchBy Type { get; set; }
+        // Псевдоним для пользователя
+        public required string DisplayName { get; set; }
+    }
+    public class SearchViewModel : ObservableObject
     {
         public string SearchQuery {
             get => searchQuery;
             set {
-                searchQuery = value.ToLower();
+                searchQuery = value;
                 OnPropertyChanged();
             }
         }
         public SearchBy SearchBy
         {
-            get => searchBy;
+            get => CurrentSearchOption.Type;
+        }
+        public ICommand SearchCommand { get; private set; }
+
+        // Простоая ObservableCollection не сработает, т.к. не реагирует на переприсвоение
+        public ICollection<FilmEntryDTO> SearchResults
+        {
+            get => searchResults;
             set
             {
-                searchBy = value;
+                searchResults = value; 
                 OnPropertyChanged();
             }
         }
-        public ICommand SearchCommand { get; private set; }
-        public ObservableCollection<FilmEntryDTO> SearchResults { get; private set; } = [];
         public ObservableCollection<string> RequiredGenres { get; private set; } = [];
+        public ICollection<PickerItem> SearchPickerItems { get; private set; }
+        public PickerItem CurrentSearchOption
+        {
+            get => currentSearchOption;
+            set
+            {
+                currentSearchOption = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string searchQuery = string.Empty;
-        private SearchBy searchBy = SearchBy.Name;
+        private readonly IFilmsService filmsService;
+        private PickerItem currentSearchOption;
+        private ICollection<FilmEntryDTO> searchResults = [];
 
-        public SearchViewModel()
+        public SearchViewModel(IFilmsService filmsService)
         {
             SearchCommand = new AsyncRelayCommand(SearchFilmsAsync);
+            this.filmsService = filmsService;
+            SearchPickerItems = [
+                new PickerItem { DisplayName = "Названию", Type = SearchBy.Name},
+                new PickerItem { DisplayName = "Имени актера", Type = SearchBy.Actor}
+            ];
+            currentSearchOption = SearchPickerItems.First();
         }
         private async Task SearchFilmsAsync()
         {
-            // Построение фильтра поиска
-            SearchFilter filter = new(SearchQuery, RequiredGenres, SearchBy);
+            SearchFilter filter = new(SearchQuery.ToUpper(), RequiredGenres);
+
+            if (CurrentSearchOption.Type == SearchBy.Name)
+                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByName(filter));
+            else if (CurrentSearchOption.Type == SearchBy.Actor)
+                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByActor(filter));
         }
     }
 }

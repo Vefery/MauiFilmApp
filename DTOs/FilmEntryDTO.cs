@@ -9,7 +9,7 @@ namespace MauiTestApp.DTOs
 {
     // DTO класс для базовой информации о фильме на странице поиска
     public record FilmEntryDTO(
-        int id,
+        int Id,
         string Name
     )
     {

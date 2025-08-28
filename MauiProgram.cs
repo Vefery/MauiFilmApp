@@ -1,4 +1,7 @@
 ﻿using MauiTestApp.Models.Database;
+using MauiTestApp.Services;
+using MauiTestApp.Services.Interfaces;
+using MauiTestApp.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -19,6 +22,8 @@ namespace MauiTestApp
 
             // Регистрирую контекст бд
             builder.Services.AddDbContext<FilmsDBContext>();
+            builder.Services.AddTransient<IFilmsService, FilmsService>();
+            builder.Services.AddSingleton<SearchViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

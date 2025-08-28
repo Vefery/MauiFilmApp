@@ -7,8 +7,9 @@ using MauiTestApp.DTOs;
 
 namespace MauiTestApp.Services.Interfaces
 {
-    internal interface IFilmsService
+    public interface IFilmsService
     {
-        Task<ICollection<FilmEntryDTO>> SearchFilms(SearchFilter searchFilter);
+        Task<ICollection<FilmEntryDTO>> SearchFilmsByName(SearchFilter searchFilter);
+        Task<ICollection<FilmEntryDTO>> SearchFilmsByActor(SearchFilter searchFilter);
     }
 }

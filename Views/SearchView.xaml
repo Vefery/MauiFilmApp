@@ -2,17 +2,38 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiTestApp.ViewModels"
+             xmlns:dtos="clr-namespace:MauiTestApp.DTOs"
              x:Class="MauiTestApp.Views.SearchView"
              x:DataType="viewModel:SearchViewModel">
-    <ContentPage.BindingContext>
-        <viewModel:SearchViewModel />
-    </ContentPage.BindingContext>
 
     <ScrollView>
         <VerticalStackLayout
-        Padding="10"
-        >
-            <SearchBar></SearchBar>
+            Padding="10"
+            Spacing="10">
+            <SearchBar 
+                x:Name="SearchBar"
+                Text="{Binding SearchQuery}"
+                SearchCommand="{Binding SearchCommand}"
+            >
+                
+            </SearchBar>
+            <Picker 
+                x:Name="searchPicker"
+                Title="Искать по"
+                SelectedItem="{Binding CurrentSearchOption}"
+                ItemsSource="{Binding SearchPickerItems}"
+                ItemDisplayBinding="{Binding DisplayName}"
+                >
+            </Picker>
+            <CollectionView ItemsSource="{Binding SearchResults}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dtos:FilmEntryDTO">
+                        <VerticalStackLayout Padding="10">
+                            <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold"/>
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
