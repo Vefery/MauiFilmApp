@@ -64,6 +64,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.8" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
@@ -76,8 +77,12 @@
 
 	<ItemGroup>
 	  <Folder Include="Models\Database\Migrations\" />
-	  <Folder Include="ViewModels\" />
-	  <Folder Include="Views\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\SearchView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>
