@@ -38,7 +38,7 @@ namespace MauiTestApp.Models.Database
             modelBuilder.Entity<Film>()
                 .HasMany(f => f.Actors)
                 .WithMany(a => a.Films)
-                .UsingEntity<FeaturedActor>();  
+                .UsingEntity<FeaturedActor>();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
