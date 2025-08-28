@@ -49,7 +49,7 @@ namespace MauiTestApp.Models.Database
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-#if DEBUG
+#if !DEBUG
             optionsBuilder.UseSqlite($"Data Source=Resources/Raw/filmsDb.db");
 #else
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
