@@ -11,7 +11,6 @@ namespace MauiTestApp.Models.Database.Entities
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public required string Surname { get; set; }
         public ICollection<Film> Films { get; } = [];
     }
 }

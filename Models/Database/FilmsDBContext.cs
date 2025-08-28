@@ -30,19 +30,30 @@ namespace MauiTestApp.Models.Database
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Для вспомогательной сущность использую составной ключ вместо Id
+            // Для вспомогательных сущностей использую составной ключ вместо Id
             modelBuilder.Entity<FeaturedActor>()
-                .HasKey(f => new { f.ActorId, f.FilmId });
+                .HasKey(fa => new { fa.ActorId, fa.FilmId });
+            modelBuilder.Entity<HasGenre>()
+                .HasKey(hg => new { hg.GenreId, hg.FilmId });
 
-            // Конфигурация связи многие-ко-многим
+            // Конфигурация связи многие-ко-многим фильмов и актеров
             modelBuilder.Entity<Film>()
                 .HasMany(f => f.Actors)
                 .WithMany(a => a.Films)
                 .UsingEntity<FeaturedActor>();
+
+            modelBuilder.Entity<Film>()
+                .HasMany(f => f.Genres)
+                .WithMany(g => g.Films)
+                .UsingEntity<HasGenre>();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+#if DEBUG
+            optionsBuilder.UseSqlite($"Data Source=Resources/Raw/filmsDb.db");
+#else
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
+#endif
         }
         private void CopyDatabaseFromAssets()
         {
