@@ -4,8 +4,13 @@
              xmlns:viewModel="clr-namespace:MauiTestApp.ViewModels"
              xmlns:dtos="clr-namespace:MauiTestApp.DTOs"
              xmlns:misc="clr-namespace:MauiTestApp.ViewModels.Misc"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="MauiTestApp.Views.SearchView"
              x:DataType="viewModel:SearchViewModel">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertBoolConverter" />
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout
@@ -23,11 +28,38 @@
                     <RoundRectangle CornerRadius="5" />
                 </Border.StrokeShape>
                 <VerticalStackLayout>
-                    <Button 
-                        BackgroundColor="Gray"
-                        HorizontalOptions="End"
-                        Command="{Binding ToggleFiltersPanel}"
-                    />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label 
+                            Grid.Column="0"
+                            Text="Опции поиска" 
+                            IsVisible="{Binding IsFilterExpanded, Converter={StaticResource InvertBoolConverter}}"
+                            HorizontalOptions="Start"
+                            VerticalOptions="Center"/>
+                        <ImageButton
+                            Grid.Column="1"
+                            IsVisible="{Binding IsFilterExpanded, Converter={StaticResource InvertBoolConverter}}"
+                            HorizontalOptions="End"
+                            Source="expand_arrow.png"
+                            HeightRequest="32"
+                            WidthRequest="32"
+                            Command="{Binding ToggleFiltersPanel}"
+                        />
+                        <ImageButton
+                            Grid.Column="1"
+                            IsVisible="{Binding IsFilterExpanded}"
+                            HorizontalOptions="End"
+                            Source="expand_arrow.png"
+                            HeightRequest="32"
+                            WidthRequest="32"
+                            ScaleY="-1"
+                            Command="{Binding ToggleFiltersPanel}"
+                        />
+                    </Grid>
                     <VerticalStackLayout IsVisible="{Binding IsFilterExpanded}" Spacing="10">
                         <Picker 
                              x:Name="searchPicker"
