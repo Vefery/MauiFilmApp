@@ -20,6 +20,9 @@ public partial class SearchView : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _searchViewModel.FetchAllGenres();
+        // Подгрузка всех жанров
+        await _searchViewModel.FetchAllGenresAsync();
+        // Начальная подгрузка всех фильмов с пустым фильтром
+        await _searchViewModel.FetchFilmsAsync();
     }
 }

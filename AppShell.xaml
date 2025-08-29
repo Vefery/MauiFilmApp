@@ -8,6 +8,9 @@
 
     <ShellContent
         ContentTemplate="{DataTemplate local:SearchView}"
-        Route="SearchPage" />
+        Route="Search" />
+    <ShellContent
+        ContentTemplate="{DataTemplate local:FilmDetailsView}"
+        Route="FilmDetails" />
 
 </Shell>

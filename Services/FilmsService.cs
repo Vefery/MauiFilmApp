@@ -24,7 +24,7 @@ namespace MauiTestApp.Services
         private readonly ILogger<FilmsService> logger = logger;
 
         // Поиск по имени актера
-        public async Task<ICollection<FilmEntryDTO>> SearchFilmsByActor(SearchFilter searchFilter)
+        public async Task<ICollection<FilmEntryDTO>> SearchFilmsByActorAsync(SearchFilter searchFilter)
         {
             try
             {
@@ -45,13 +45,13 @@ namespace MauiTestApp.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
+                logger.LogError("Ошибка при поиске по актеру {er}", ex.Message);
                 return [];
             }
         }
 
         // Поиск по имени фильма
-        public async Task<ICollection<FilmEntryDTO>> SearchFilmsByName(SearchFilter searchFilter)
+        public async Task<ICollection<FilmEntryDTO>> SearchFilmsByNameAsync(SearchFilter searchFilter)
         {
             try
             {
@@ -69,12 +69,13 @@ namespace MauiTestApp.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
-
+                logger.LogError("Ошибка при поиске по названию: {er}", ex.Message);
                 return [];
             }
         }
-        public async Task<ICollection<string>> GetAllGenres()
+
+        // Получение списка всех жанров
+        public async Task<ICollection<string>> GetAllGenresAsync()
         {
             try
             {
@@ -85,8 +86,26 @@ namespace MauiTestApp.Services
             } 
             catch (Exception ex)
             {
-                logger.LogError(ex.Message);
+                logger.LogError("Ошибка при получении жанров: {er}", ex.Message);
                 return [];
+            }
+        }
+        public async Task<FilmDetailsDTO?> GetFilmDetailsAsync(int filmId)
+        {
+            try
+            {
+                return await dBContext.Films
+                    .AsNoTracking()
+                    .Where(f => f.Id == filmId)
+                    .Include(f => f.Genres)
+                    .Include(f => f.Actors)
+                    .Select(f => FilmDetailsDTO.ToDTO(f))
+                    .FirstAsync();
+            } 
+            catch (Exception ex)
+            {
+                logger.LogError("Ошибка при получении информации о фильме: {er}", ex.Message);
+                return null;
             }
         }
 

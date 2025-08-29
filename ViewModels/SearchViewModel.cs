@@ -11,6 +11,7 @@ using MauiTestApp.DTOs;
 using MauiTestApp.Services;
 using MauiTestApp.Services.Interfaces;
 using MauiTestApp.ViewModels.Misc;
+using Microsoft.Extensions.Logging;
 
 namespace MauiTestApp.ViewModels
 {
@@ -27,8 +28,9 @@ namespace MauiTestApp.ViewModels
         {
             get => CurrentSearchOption.Type;
         }
-        public ICommand SearchCommand { get; private set; }
-        public ICommand ToggleFiltersPanel {  get; private set; }
+        public IAsyncRelayCommand SearchCommand { get; private set; }
+        public ICommand ToggleFiltersPanelCommand {  get; private set; }
+        public IAsyncRelayCommand ShowFilmDetailsCommand {  get; private set; }
 
         // Простоая ObservableCollection не сработает, т.к. не реагирует на переприсвоение
         public IEnumerable<FilmEntryDTO> SearchResults
@@ -68,37 +70,75 @@ namespace MauiTestApp.ViewModels
                 OnPropertyChanged();
             }
         }
+        public bool IsLoading
+        {
+            get => isLoading;
+            set
+            {
+                isLoading = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string searchQuery = string.Empty;
         private readonly IFilmsService filmsService;
         private bool isFilterExpanded;
+        private bool isLoading;
         private SearchPickerItem currentSearchOption;
         private IEnumerable<FilmEntryDTO> searchResults = [];
         private ICollection<SearchGenreSelection> genresFilter = [];
+        private ILogger<SearchViewModel> logger;
 
-        public SearchViewModel(IFilmsService filmsService)
+        public SearchViewModel(IFilmsService filmsService, ILogger<SearchViewModel> logger)
         {
             SearchCommand = new AsyncRelayCommand(SearchFilmsAsync);
-            ToggleFiltersPanel = new Command(() => IsFilterExpanded = !IsFilterExpanded);
+            ShowFilmDetailsCommand = new AsyncRelayCommand<int>(NavigateToFilm);
+            ToggleFiltersPanelCommand = new Command(() => IsFilterExpanded = !IsFilterExpanded);
             this.filmsService = filmsService;
+            this.logger = logger;
             SearchPickerItems = [
                 new SearchPickerItem { DisplayName = "Названию", Type = SearchBy.Name},
                 new SearchPickerItem { DisplayName = "Имени актера", Type = SearchBy.Actor}
             ];
             currentSearchOption = SearchPickerItems.First();
         }
-        public async Task FetchAllGenres()
+        // Получение всех жанров
+        public async Task FetchAllGenresAsync()
         {
-            GenresFilter = (await filmsService.GetAllGenres()).Select(g => new SearchGenreSelection(g)).ToList();
+            GenresFilter = (await filmsService.GetAllGenresAsync()).Select(g => new SearchGenreSelection(g)).ToList();
         }
+        // Первоначальная подгрузка всех фильмов
+        public async Task FetchFilmsAsync()
+        {
+            IsLoading = true;
+            SearchFilter filter = new(string.Empty, []);
+            SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByNameAsync(filter));
+            IsLoading = false;
+        }
+        // Навигация на страницу выбранного фильма
+        private async Task NavigateToFilm(int filmId)
+        {
+            try
+            {
+                await Shell.Current.GoToAsync($"//FilmDetails?FilmId={filmId}");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Ошибка при переходе на фильм: {er}", ex.Message);
+            }
+        }
+        // Поиск фильмов с учетом фильтров
         private async Task SearchFilmsAsync()
         {
+            IsLoading = true;
             SearchFilter filter = new(SearchQuery.ToUpper(), GenresFilter.Where(g => g.IsSelected).Select(g => g.Name));
 
             if (CurrentSearchOption.Type == SearchBy.Name)
-                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByName(filter));
+                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByNameAsync(filter));
             else if (CurrentSearchOption.Type == SearchBy.Actor)
-                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByActor(filter));
+                SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByActorAsync(filter));
+
+            IsLoading = false;
         }
     }
 }

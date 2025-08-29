@@ -9,8 +9,9 @@ namespace MauiTestApp.Services.Interfaces
 {
     public interface IFilmsService
     {
-        Task<ICollection<FilmEntryDTO>> SearchFilmsByName(SearchFilter searchFilter);
-        Task<ICollection<FilmEntryDTO>> SearchFilmsByActor(SearchFilter searchFilter);
-        Task<ICollection<string>> GetAllGenres();
+        Task<ICollection<FilmEntryDTO>> SearchFilmsByNameAsync(SearchFilter searchFilter);
+        Task<ICollection<FilmEntryDTO>> SearchFilmsByActorAsync(SearchFilter searchFilter);
+        Task<ICollection<string>> GetAllGenresAsync();
+        Task<FilmDetailsDTO?> GetFilmDetailsAsync(int filmId);
     }
 }

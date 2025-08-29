@@ -29,6 +29,7 @@ namespace MauiTestApp
             builder.Services.AddDbContext<FilmsDBContext>();
             builder.Services.AddTransient<IFilmsService, FilmsService>();
             builder.Services.AddSingleton<SearchViewModel>();
+            builder.Services.AddSingleton<FilmDetailsViewModel>();
 
             return builder.Build();
         }

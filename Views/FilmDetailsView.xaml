@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:MauiTestApp.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="MauiTestApp.Views.FilmDetailsView"
+             x:DataType="viewModel:FilmDetailsViewModel">
+
+    <!-- Инвертор для bool -->
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertBoolConverter" />
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Кнопка назад -->
+        <ImageButton 
+            Grid.Row="0"
+            Source="back_icon.png"
+            WidthRequest="32"
+            HeightRequest="32"
+            HorizontalOptions="Start"
+            Command="{Binding BackCommand}"/>
+
+        <!-- Индикатор загрузки -->
+        <ActivityIndicator
+            Grid.Row="1"
+            IsVisible="{Binding IsLoading}"
+            IsRunning="True"
+            Color="LightGray"/>
+
+        <!-- Панель с информацией -->
+        <ScrollView 
+            Grid.Row="1"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InvertBoolConverter}}">
+            <VerticalStackLayout 
+                Padding="10"
+                Spacing="10">
+                <!-- Постер -->
+                <Image
+                    Grid.Column="0"
+                    WidthRequest="200"
+                    Source="{Binding FilmDetails.PosterPath}"/>
+                <!-- Название фильма -->
+                <Label 
+                    Text="{Binding FilmDetails.Name}"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    FontSize="30"
+                    FontAttributes="Bold"/>
+                <!-- Сетка с информацией -->
+                <Grid 
+                    RowSpacing="10"
+                    ColumnSpacing="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- Дата релиза -->
+                    <Label 
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Text="Дата премьеры:" />
+
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Text="{Binding FilmDetails.ReleaseDate}">
+                    </Label>
+                    <!-- Жанры -->
+                    <Label 
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Text="Жанры:" />
+
+                    <CollectionView
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        ItemsSource="{Binding FilmDetails.Genres}">
+                    </CollectionView>
+                    <!-- Актеры -->
+                    <Label 
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Text="Актеры:" />
+
+                    <CollectionView
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        ItemsSource="{Binding FilmDetails.Actors}">
+                    </CollectionView>
+                </Grid>
+                <!-- Конец сетки с информацией -->
+
+                <!-- Описание фильма -->
+                <Label 
+                    Text="Описание"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"/>
+                <Label Text="{Binding FilmDetails.Description}" />
+            </VerticalStackLayout>
+        </ScrollView>
+        <!-- Конец панели с информацией -->
+    </Grid>
+</ContentPage>

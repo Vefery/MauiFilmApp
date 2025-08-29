@@ -6,7 +6,8 @@
              xmlns:misc="clr-namespace:MauiTestApp.ViewModels.Misc"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="MauiTestApp.Views.SearchView"
-             x:DataType="viewModel:SearchViewModel">
+             x:DataType="viewModel:SearchViewModel"
+             x:Name="Page">
 
     <!-- Инвертор для bool -->
     <ContentPage.Resources>
@@ -62,7 +63,7 @@
                             Source="expand_arrow.png"
                             HeightRequest="32"
                             WidthRequest="32"
-                            Command="{Binding ToggleFiltersPanel}"/>
+                            Command="{Binding ToggleFiltersPanelCommand}"/>
                     <ImageButton
                             Grid.Column="1"
                             IsVisible="{Binding IsFilterExpanded}"
@@ -71,7 +72,7 @@
                             HeightRequest="32"
                             WidthRequest="32"
                             ScaleY="-1"
-                            Command="{Binding ToggleFiltersPanel}"/>
+                            Command="{Binding ToggleFiltersPanelCommand}"/>
                 </Grid>
                 <!-- Сами фильтры -->
                 <VerticalStackLayout IsVisible="{Binding IsFilterExpanded}" Spacing="10">
@@ -121,14 +122,23 @@
         </Border>
         <!-- Конец панели фильтров -->
 
+        <ActivityIndicator 
+            Grid.Row="2"
+            IsVisible="{Binding IsLoading}"
+            IsRunning="True"
+            Color="LightGray"/>
         <!-- Панель найденных фильмов -->
-        <ScrollView Grid.Row="2">
-            <CollectionView ItemsSource="{Binding SearchResults}">
+        <ScrollView 
+            Grid.Row="2"
+            IsVisible="{Binding IsLoading, Converter={StaticResource InvertBoolConverter}}">
+            <CollectionView 
+                x:Name="FilmsCollectionView" 
+                ItemsSource="{Binding SearchResults}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical"
                         ItemSpacing="3"/>
                 </CollectionView.ItemsLayout>
-                
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="dtos:FilmEntryDTO">
                         <Border 
@@ -138,6 +148,11 @@
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="5" />
                             </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource Mode=FindAncestorBindingContext, AncestorType={x:Type viewModel:SearchViewModel}}, Path=ShowFilmDetailsCommand}"
+                                    CommandParameter="{Binding Id}"/>
+                            </Border.GestureRecognizers>
                             <!-- Сетка с постером и названием -->
                             <Grid>
                                 <Grid.ColumnDefinitions>
