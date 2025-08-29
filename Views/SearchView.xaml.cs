@@ -4,10 +4,11 @@ namespace MauiTestApp.Views;
 
 public partial class SearchView : ContentPage
 {
-	public SearchView(SearchViewModel searchViewModel)
+    private readonly SearchViewModel _searchViewModel;
+    public SearchView(SearchViewModel searchViewModel)
 	{
 		InitializeComponent();
-		BindingContext = searchViewModel;
+		BindingContext = _searchViewModel = searchViewModel;
 	}
     protected override void OnHandlerChanged()
     {
@@ -15,5 +16,10 @@ public partial class SearchView : ContentPage
         // Начальное значение picker'а должно выставляться после
         // его инициализации, иначе не работает
         searchPicker.SelectedIndex = 0;
+    }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _searchViewModel.FetchAllGenres();
     }
 }

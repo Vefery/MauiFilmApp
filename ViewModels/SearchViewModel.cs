@@ -10,20 +10,10 @@ using CommunityToolkit.Mvvm.Input;
 using MauiTestApp.DTOs;
 using MauiTestApp.Services;
 using MauiTestApp.Services.Interfaces;
+using MauiTestApp.ViewModels.Misc;
 
 namespace MauiTestApp.ViewModels
 {
-    public enum SearchBy
-    {
-        Name,
-        Actor
-    }
-    public class PickerItem
-    {
-        public SearchBy Type { get; set; }
-        // Псевдоним для пользователя
-        public required string DisplayName { get; set; }
-    }
     public class SearchViewModel : ObservableObject
     {
         public string SearchQuery {
@@ -38,9 +28,10 @@ namespace MauiTestApp.ViewModels
             get => CurrentSearchOption.Type;
         }
         public ICommand SearchCommand { get; private set; }
+        public ICommand ToggleFiltersPanel {  get; private set; }
 
         // Простоая ObservableCollection не сработает, т.к. не реагирует на переприсвоение
-        public ICollection<FilmEntryDTO> SearchResults
+        public IEnumerable<FilmEntryDTO> SearchResults
         {
             get => searchResults;
             set
@@ -49,9 +40,17 @@ namespace MauiTestApp.ViewModels
                 OnPropertyChanged();
             }
         }
-        public ObservableCollection<string> RequiredGenres { get; private set; } = [];
-        public ICollection<PickerItem> SearchPickerItems { get; private set; }
-        public PickerItem CurrentSearchOption
+        public ICollection<SearchGenreSelection> GenresFilter
+        {
+            get => genresFilter;
+            set
+            {
+                genresFilter = value;
+                OnPropertyChanged();
+            }
+        }
+        public ICollection<SearchPickerItem> SearchPickerItems { get; private set; }
+        public SearchPickerItem CurrentSearchOption
         {
             get => currentSearchOption;
             set
@@ -60,25 +59,41 @@ namespace MauiTestApp.ViewModels
                 OnPropertyChanged();
             }
         }
+        public bool IsFilterExpanded
+        {
+            get => isFilterExpanded;
+            set
+            {
+                isFilterExpanded = value;
+                OnPropertyChanged();
+            }
+        }
 
         private string searchQuery = string.Empty;
         private readonly IFilmsService filmsService;
-        private PickerItem currentSearchOption;
-        private ICollection<FilmEntryDTO> searchResults = [];
+        private bool isFilterExpanded;
+        private SearchPickerItem currentSearchOption;
+        private IEnumerable<FilmEntryDTO> searchResults = [];
+        private ICollection<SearchGenreSelection> genresFilter = [];
 
         public SearchViewModel(IFilmsService filmsService)
         {
             SearchCommand = new AsyncRelayCommand(SearchFilmsAsync);
+            ToggleFiltersPanel = new Command(() => IsFilterExpanded = !IsFilterExpanded);
             this.filmsService = filmsService;
             SearchPickerItems = [
-                new PickerItem { DisplayName = "Названию", Type = SearchBy.Name},
-                new PickerItem { DisplayName = "Имени актера", Type = SearchBy.Actor}
+                new SearchPickerItem { DisplayName = "Названию", Type = SearchBy.Name},
+                new SearchPickerItem { DisplayName = "Имени актера", Type = SearchBy.Actor}
             ];
             currentSearchOption = SearchPickerItems.First();
         }
+        public async Task FetchAllGenres()
+        {
+            GenresFilter = (await filmsService.GetAllGenres()).Select(g => new SearchGenreSelection(g)).ToList();
+        }
         private async Task SearchFilmsAsync()
         {
-            SearchFilter filter = new(SearchQuery.ToUpper(), RequiredGenres);
+            SearchFilter filter = new(SearchQuery.ToUpper(), GenresFilter.Where(g => g.IsSelected).Select(g => g.Name));
 
             if (CurrentSearchOption.Type == SearchBy.Name)
                 SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByName(filter));

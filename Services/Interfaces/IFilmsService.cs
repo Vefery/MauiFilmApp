@@ -11,5 +11,6 @@ namespace MauiTestApp.Services.Interfaces
     {
         Task<ICollection<FilmEntryDTO>> SearchFilmsByName(SearchFilter searchFilter);
         Task<ICollection<FilmEntryDTO>> SearchFilmsByActor(SearchFilter searchFilter);
+        Task<ICollection<string>> GetAllGenres();
     }
 }

@@ -15,7 +15,7 @@ namespace MauiTestApp.Services
     // Фильтр для поиска
     public record SearchFilter(
         string Query,
-        ICollection<string> RequiredGenres
+        IEnumerable<string> RequiredGenres
     );
 
     internal class FilmsService(FilmsDBContext filmsDBContext, ILogger<FilmsService> logger) : IFilmsService
@@ -28,9 +28,13 @@ namespace MauiTestApp.Services
         {
             try
             {
+                // Поиск происходит по паттерну "запрос%", т.е. фильм
+                // выбирается если запрос находится в начале имени одного
+                // из актеров. Например, при запросе "райан", актер
+                // с именем "Брайан" уже не будет выбран
                 var foundFilms = dBContext.Films
                     .AsNoTracking()
-                    .Where(f => f.Actors.Any(a => EF.Functions.Like(a.NameNormalized, $"%{searchFilter.Query}%")));
+                    .Where(f => f.Actors.Any(a => EF.Functions.Like(a.NameNormalized, $"{searchFilter.Query}%")));
 
                 if (searchFilter.RequiredGenres.Any())
                     foundFilms = FilterByGenres(foundFilms, searchFilter.RequiredGenres);
@@ -51,15 +55,13 @@ namespace MauiTestApp.Services
         {
             try
             {
+                // Поиск происходит по паттерну "%запрос%", т.е. фильм
+                // выбирается если запрос находится в названии в любом месте
                 var foundFilms = dBContext.Films
                     .AsNoTracking()
                     .Where(f => EF.Functions.Like(f.NameNormalized, $"%{searchFilter.Query}%"));
                 if (searchFilter.RequiredGenres.Any())
                     foundFilms = FilterByGenres(foundFilms, searchFilter.RequiredGenres);
-                var tmp = foundFilms
-                    .Select(f => FilmEntryDTO.ToDTO(f))
-                    .ToList();
-
 
                 return await foundFilms
                     .Select(f => FilmEntryDTO.ToDTO(f))
@@ -72,11 +74,27 @@ namespace MauiTestApp.Services
                 return [];
             }
         }
+        public async Task<ICollection<string>> GetAllGenres()
+        {
+            try
+            {
+                return await dBContext.Genres
+                    .AsNoTracking()
+                    .Select(g => g.GenreName)
+                    .ToListAsync();
+            } 
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message);
+                return [];
+            }
+        }
 
-        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, ICollection<string> genres)
+        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, IEnumerable<string> genres)
         {
             // Для проверки, что все жанры фильтра присутствуют в фильме
-            // для каждого жанра фильма проверяется 
+            // для каждого жанра фильма проверяется, что каждый необходимый
+            // жанр содержится в фильме
             return films
                     .Include(f => f.Genres)
                     .Where(f => genres.All(rg => f.Genres.Select(g => g.GenreName).Contains(rg)));

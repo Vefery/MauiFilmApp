@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModel="clr-namespace:MauiTestApp.ViewModels"
              xmlns:dtos="clr-namespace:MauiTestApp.DTOs"
+             xmlns:misc="clr-namespace:MauiTestApp.ViewModels.Misc"
              x:Class="MauiTestApp.Views.SearchView"
              x:DataType="viewModel:SearchViewModel">
 
@@ -14,17 +15,54 @@
                 x:Name="SearchBar"
                 Text="{Binding SearchQuery}"
                 SearchCommand="{Binding SearchCommand}"
-            >
-                
-            </SearchBar>
-            <Picker 
-                x:Name="searchPicker"
-                Title="Искать по"
-                SelectedItem="{Binding CurrentSearchOption}"
-                ItemsSource="{Binding SearchPickerItems}"
-                ItemDisplayBinding="{Binding DisplayName}"
-                >
-            </Picker>
+            />
+
+
+            <Border Stroke="LightGray" Padding="10" HorizontalOptions="Fill">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="5" />
+                </Border.StrokeShape>
+                <VerticalStackLayout>
+                    <Button 
+                        BackgroundColor="Gray"
+                        HorizontalOptions="End"
+                        Command="{Binding ToggleFiltersPanel}"
+                    />
+                    <VerticalStackLayout IsVisible="{Binding IsFilterExpanded}" Spacing="10">
+                        <Picker 
+                             x:Name="searchPicker"
+                             Title="Искать по"
+                             SelectedItem="{Binding CurrentSearchOption}"
+                             ItemsSource="{Binding SearchPickerItems}"
+                             ItemDisplayBinding="{Binding DisplayName}"
+                        />
+
+
+                        <Border Stroke="LightGray" Padding="10">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="5" />
+                            </Border.StrokeShape>
+                            <VerticalStackLayout>
+                                <Label Text="Жанры:"/>
+                                <CollectionView ItemsSource="{Binding GenresFilter}"
+                                    SelectionMode="None">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="misc:SearchGenreSelection">
+                                            <HorizontalStackLayout>
+                                                <CheckBox IsChecked="{Binding IsSelected}"
+                                   Color="#512BD4"/>
+                                                <Label Text="{Binding Name}" 
+                                VerticalOptions="Center"/>
+                                            </HorizontalStackLayout>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
             <CollectionView ItemsSource="{Binding SearchResults}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="dtos:FilmEntryDTO">
