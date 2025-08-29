@@ -10,12 +10,17 @@ namespace MauiTestApp.DTOs
     // DTO класс для базовой информации о фильме на странице поиска
     public record FilmEntryDTO(
         int Id,
-        string Name
+        string Name,
+        string PosterPath
     )
     {
         public static FilmEntryDTO ToDTO(Film filmEntity)
         {
-            return new FilmEntryDTO(filmEntity.Id, filmEntity.Name);
+            return new FilmEntryDTO(
+                filmEntity.Id, 
+                filmEntity.Name, 
+                filmEntity.PosterPath
+            );
         }
     }
 }

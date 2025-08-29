@@ -8,48 +8,62 @@
              x:Class="MauiTestApp.Views.SearchView"
              x:DataType="viewModel:SearchViewModel">
 
+    <!-- Инвертор для bool -->
     <ContentPage.Resources>
         <toolkit:InvertedBoolConverter x:Key="InvertBoolConverter" />
     </ContentPage.Resources>
 
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="10"
-            Spacing="10">
-            <SearchBar 
-                x:Name="SearchBar"
-                Text="{Binding SearchQuery}"
-                SearchCommand="{Binding SearchCommand}"
-            />
+    <!-- Основной контейнер -->
+    <Grid
+        Padding="10"
+        RowSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <!-- Панель поиска -->
+        <SearchBar 
+            x:Name="SearchBar"
+            Grid.Row="0"
+            Text="{Binding SearchQuery}"
+            SearchCommand="{Binding SearchCommand}"/>
 
+        <!-- Панель фильтров -->
+        <Border 
+            Stroke="LightGray" 
+            Padding="10" 
+            HorizontalOptions="Fill"
+            Grid.Row="1">
+            
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="5" />
+            </Border.StrokeShape>
+            <VerticalStackLayout>
+                <!-- Шапка панели с кнопкой развернуть/свернуть -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-            <Border Stroke="LightGray" Padding="10" HorizontalOptions="Fill">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="5" />
-                </Border.StrokeShape>
-                <VerticalStackLayout>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <Label 
+                    <Label 
                             Grid.Column="0"
                             Text="Опции поиска" 
                             IsVisible="{Binding IsFilterExpanded, Converter={StaticResource InvertBoolConverter}}"
                             HorizontalOptions="Start"
                             VerticalOptions="Center"/>
-                        <ImageButton
+                    <!-- Две кнопки: со стрелкой вниз и вверх -->
+                    <ImageButton
                             Grid.Column="1"
                             IsVisible="{Binding IsFilterExpanded, Converter={StaticResource InvertBoolConverter}}"
                             HorizontalOptions="End"
                             Source="expand_arrow.png"
                             HeightRequest="32"
                             WidthRequest="32"
-                            Command="{Binding ToggleFiltersPanel}"
-                        />
-                        <ImageButton
+                            Command="{Binding ToggleFiltersPanel}"/>
+                    <ImageButton
                             Grid.Column="1"
                             IsVisible="{Binding IsFilterExpanded}"
                             HorizontalOptions="End"
@@ -57,53 +71,98 @@
                             HeightRequest="32"
                             WidthRequest="32"
                             ScaleY="-1"
-                            Command="{Binding ToggleFiltersPanel}"
-                        />
-                    </Grid>
-                    <VerticalStackLayout IsVisible="{Binding IsFilterExpanded}" Spacing="10">
-                        <Picker 
+                            Command="{Binding ToggleFiltersPanel}"/>
+                </Grid>
+                <!-- Сами фильтры -->
+                <VerticalStackLayout IsVisible="{Binding IsFilterExpanded}" Spacing="10">
+                    <!-- Dropdown меню выбора режима поиска -->
+                    <Picker 
                              x:Name="searchPicker"
                              Title="Искать по"
                              SelectedItem="{Binding CurrentSearchOption}"
                              ItemsSource="{Binding SearchPickerItems}"
-                             ItemDisplayBinding="{Binding DisplayName}"
-                        />
-
-
-                        <Border Stroke="LightGray" Padding="10">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="5" />
-                            </Border.StrokeShape>
-                            <VerticalStackLayout>
-                                <Label Text="Жанры:"/>
-                                <CollectionView ItemsSource="{Binding GenresFilter}"
+                             ItemDisplayBinding="{Binding DisplayName}"/>
+                    <!-- Панель выбора жанров -->
+                    <Border Stroke="LightGray" Padding="10">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="5" />
+                        </Border.StrokeShape>
+                        <!-- Сетка с двумя строками для текста и списка жанров -->
+                        <Grid RowSpacing="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="250"/>
+                            </Grid.RowDefinitions>
+                            <Label Text="Жанры:" Grid.Row="0"/>
+                            <!-- Список жанров с галочками выбора -->
+                            <ScrollView Grid.Row="1">
+                                <CollectionView 
+                                    ItemsSource="{Binding GenresFilter}"
                                     SelectionMode="None">
                                     <CollectionView.ItemTemplate>
                                         <DataTemplate x:DataType="misc:SearchGenreSelection">
                                             <HorizontalStackLayout>
                                                 <CheckBox IsChecked="{Binding IsSelected}"
-                                   Color="#512BD4"/>
+                                                    Color="LightGray"/>
                                                 <Label Text="{Binding Name}" 
-                                VerticalOptions="Center"/>
+                                                    VerticalOptions="Center"/>
                                             </HorizontalStackLayout>
                                         </DataTemplate>
                                     </CollectionView.ItemTemplate>
                                 </CollectionView>
-                            </VerticalStackLayout>
-                        </Border>
-                    </VerticalStackLayout>
+                            </ScrollView>
+                            <!-- Конец списка жанров -->
+                        </Grid>
+                    </Border>
+                    <!-- Конец панели жанров -->
                 </VerticalStackLayout>
-            </Border>
+                <!-- Конец тела панели фильтров -->
+            </VerticalStackLayout>
+        </Border>
+        <!-- Конец панели фильтров -->
 
+        <!-- Панель найденных фильмов -->
+        <ScrollView Grid.Row="2">
             <CollectionView ItemsSource="{Binding SearchResults}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical"
+                        ItemSpacing="3"/>
+                </CollectionView.ItemsLayout>
+                
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="dtos:FilmEntryDTO">
-                        <VerticalStackLayout Padding="10">
-                            <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold"/>
-                        </VerticalStackLayout>
+                        <Border 
+                            Stroke="Transparent"
+                            BackgroundColor="LightGray" 
+                            Padding="10">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="5" />
+                            </Border.StrokeShape>
+                            <!-- Сетка с постером и названием -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Image
+                                    Grid.Column="0"
+                                    Source="{Binding PosterPath}"
+                                    WidthRequest="100"/>
+                                <Label 
+                                    Grid.Column="1"
+                                    Padding="10, 0"
+                                    Text="{Binding Name}"
+                                    LineBreakMode="WordWrap"
+                                    FontSize="20"
+                                    FontAttributes="Bold"
+                                    VerticalOptions="Start"
+                                    HorizontalOptions="Start"/> 
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+            <!-- Конец панели фильмов -->
+        </ScrollView>
+    </Grid>
 </ContentPage>

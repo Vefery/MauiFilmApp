@@ -22,14 +22,13 @@ namespace MauiTestApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+#if DEBUG
+            builder.Logging.AddDebug();
+#endif
             // Регистрирую контекст бд
             builder.Services.AddDbContext<FilmsDBContext>();
             builder.Services.AddTransient<IFilmsService, FilmsService>();
             builder.Services.AddSingleton<SearchViewModel>();
-
-#if DEBUG
-            builder.Logging.AddDebug();
-#endif
 
             return builder.Build();
         }

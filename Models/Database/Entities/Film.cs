@@ -14,6 +14,7 @@ namespace MauiTestApp.Models.Database.Entities
         // SQLite не работает с регистром кириллицы, поэтому для поиска нормализованное поле
         public required string NameNormalized { get; set; }
         public required string Description { get; set; }
+        public required string PosterPath { get; set; }
         public DateOnly ReleaseDate {  get; set; }
         public ICollection<Genre> Genres { get; set; } = [];
         public ICollection<Actor> Actors { get; } = [];
