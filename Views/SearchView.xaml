@@ -92,7 +92,7 @@
                         <Grid RowSpacing="10">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="250"/>
+                                <RowDefinition Height="200"/>
                             </Grid.RowDefinitions>
                             <Label Text="Жанры:" Grid.Row="0"/>
                             <!-- Список жанров с галочками выбора -->
@@ -116,6 +116,13 @@
                         </Grid>
                     </Border>
                     <!-- Конец панели жанров -->
+
+                    <!-- Кнопка применения фильтра -->
+                    <Button
+                        Text="Применить фильтры"
+                        BackgroundColor="LightGray"
+                        TextColor="Black"
+                        Command="{Binding SearchCommand}"/>
                 </VerticalStackLayout>
                 <!-- Конец тела панели фильтров -->
             </VerticalStackLayout>
