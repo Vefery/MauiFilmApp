@@ -21,6 +21,7 @@ namespace MauiTestApp.Models.Repositories
         {
             try
             {
+                // Получение всех жанров
                 return await dBContext.Genres
                     .AsNoTracking()
                     .Select(g => g.GenreName)
@@ -37,6 +38,8 @@ namespace MauiTestApp.Models.Repositories
         {
             try
             {
+                // Получение информации о конкретном фильме
+                // с присоединением жанров и актеров
                 return await dBContext.Films
                     .AsNoTracking()
                     .Where(f => f.Id == filmId)
@@ -55,13 +58,15 @@ namespace MauiTestApp.Models.Repositories
         {
             try
             {
-                // Поиск происходит по паттерну "запрос%", т.е. фильм
-                // выбирается если запрос находится в начале имени одного
-                // из актеров. Например, при запросе "райан", актер
-                // с именем "Брайан" уже не будет выбран
+                // Поиск происходит по паттернам "запрос%" и "% запрос%",
+                // т.е. фильм выбирается если запрос находится в начале
+                // имени или фамилии одного из актеров. Например, при запросе
+                // "райан", актер с именем "Брайан" уже не будет выбран
                 var foundFilms = dBContext.Films
                     .AsNoTracking()
-                    .Where(f => f.Actors.Any(a => EF.Functions.Like(a.NameNormalized, $"{searchFilter.Query}%")));
+                    .Where(f => f.Actors.Any(a => 
+                        EF.Functions.Like(a.NameNormalized, $"{searchFilter.Query}%")
+                        || EF.Functions.Like(a.NameNormalized, $"% {searchFilter.Query}%")));
 
                 if (searchFilter.RequiredGenres.Any())
                     foundFilms = FilterByGenres(foundFilms, searchFilter.RequiredGenres);
