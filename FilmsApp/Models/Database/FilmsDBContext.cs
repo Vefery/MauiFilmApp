@@ -16,6 +16,7 @@ namespace MauiTestApp.Models.Database
         public DbSet<Actor> Actors => Set<Actor>();
         public DbSet<FeaturedActor> FeaturedActors => Set<FeaturedActor>();
         public DbSet<Genre> Genres => Set<Genre>();
+        public DbSet<HasGenre> HasGenres => Set<HasGenre>();
 
         private readonly string dbPath;
         private readonly ILogger<FilmsDBContext> logger;
@@ -30,6 +31,15 @@ namespace MauiTestApp.Models.Database
             {
                 CopyDatabaseFromAssets();
             }
+        }
+
+        // Конструктор для тестирования. По какой-то причине MAUI не работает
+        // если передавать параметри через DI, поэтому рабочие параметры задаются
+        // в OnConfiguring
+        public FilmsDBContext(DbContextOptions<FilmsDBContext> options, ILogger<FilmsDBContext> logger) : base(options)
+        {
+            this.logger = logger;
+            dbPath = string.Empty;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -53,7 +63,10 @@ namespace MauiTestApp.Models.Database
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            // Использовать реальную бд только если не поступила иная конфигурация
+            // (In-Memory бд для тестов через DI)
+            if (!optionsBuilder.IsConfigured)
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
         private void CopyDatabaseFromAssets()
         {
