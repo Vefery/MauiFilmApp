@@ -28,7 +28,20 @@ namespace MauiTestApp
             builder.Logging.AddDebug();
 #endif
             // Регистрирую контекст бд
-            builder.Services.AddDbContext<FilmsDBContext>();
+            builder.Services.AddDbContext<FilmsDBContext>(options =>
+            {
+                // Путь к файлу бд в локальной директории приложения
+                string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "filmsDb.db");
+
+                // Если файла бд нет, то копирую его из ресурсов
+                if (!File.Exists(dbPath))
+                {
+                    using var stream = FileSystem.OpenAppPackageFileAsync("filmsDb.db").Result;
+                    using var dest = File.Create(dbPath);
+                    stream.CopyTo(dest);
+                }
+                options.UseSqlite($"Data Source={dbPath}");
+            });
             builder.Services.AddTransient<IFilmsRepository, FilmsRepository>();
             builder.Services.AddTransient<IFilmsService, FilmsService>();
             builder.Services.AddSingleton<SearchViewModel>();
