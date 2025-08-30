@@ -17,6 +17,6 @@ namespace MauiTestApp.Models.Database.Entities
         public required string PosterPath { get; set; }
         public DateOnly ReleaseDate {  get; set; }
         public ICollection<Genre> Genres { get; set; } = [];
-        public ICollection<Actor> Actors { get; } = [];
+        public ICollection<Actor> Actors { get; set; } = [];
     }
 }

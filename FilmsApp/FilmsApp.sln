@@ -6,9 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmsApp", "FilmsApp.csproj", "{BB151209-C545-43E1-9515-3F105C02458F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilmsApp.Tests", "..\FilmsApp.Tests\FilmsApp.Tests.csproj", "{64167BFB-D0F9-4102-A91E-0300305FE1EF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{BB151209-C545-43E1-9515-3F105C02458F} = {BB151209-C545-43E1-9515-3F105C02458F}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
