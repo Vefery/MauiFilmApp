@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MauiTestApp.DTOs;
 using MauiTestApp.Models.Database;
 using MauiTestApp.Models.Database.Entities;
+using MauiTestApp.Models.Repositories.Interfaces;
 using MauiTestApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -18,105 +19,33 @@ namespace MauiTestApp.Services
         IEnumerable<string> RequiredGenres
     );
 
-    public class FilmsService(FilmsDBContext filmsDBContext, ILogger<FilmsService> logger) : IFilmsService
+    public class FilmsService(IFilmsRepository repository, ILogger<FilmsService> logger) : IFilmsService
     {
-        private readonly FilmsDBContext dBContext = filmsDBContext;
+        private readonly IFilmsRepository repository = repository;
         private readonly ILogger<FilmsService> logger = logger;
 
         // Поиск по имени актера
         public async Task<ICollection<FilmEntryDTO>> SearchFilmsByActorAsync(SearchFilter searchFilter)
         {
-            try
-            {
-                // Поиск происходит по паттерну "запрос%", т.е. фильм
-                // выбирается если запрос находится в начале имени одного
-                // из актеров. Например, при запросе "райан", актер
-                // с именем "Брайан" уже не будет выбран
-                var foundFilms = dBContext.Films
-                    .AsNoTracking()
-                    .Where(f => f.Actors.Any(a => EF.Functions.Like(a.NameNormalized, $"{searchFilter.Query}%")));
-
-                if (searchFilter.RequiredGenres.Any())
-                    foundFilms = FilterByGenres(foundFilms, searchFilter.RequiredGenres);
-
-                return await foundFilms
-                    .Select(f => FilmEntryDTO.ToDTO(f))
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Ошибка при поиске по актеру {er}", ex.Message);
-                return [];
-            }
+            return (await repository.SearchFilmsByActorAsync(searchFilter))
+                .Select(f => FilmEntryDTO.ToDTO(f))
+                .ToList();
         }
 
         // Поиск по имени фильма
         public async Task<ICollection<FilmEntryDTO>> SearchFilmsByNameAsync(SearchFilter searchFilter)
         {
-            try
-            {
-                // Поиск происходит по паттерну "%запрос%", т.е. фильм
-                // выбирается если запрос находится в названии в любом месте
-                var foundFilms = dBContext.Films
-                    .AsNoTracking()
-                    .Where(f => EF.Functions.Like(f.NameNormalized, $"%{searchFilter.Query}%"));
-                if (searchFilter.RequiredGenres.Any())
-                    foundFilms = FilterByGenres(foundFilms, searchFilter.RequiredGenres);
-
-                return await foundFilms
-                    .Select(f => FilmEntryDTO.ToDTO(f))
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Ошибка при поиске по названию: {er}", ex.Message);
-                return [];
-            }
+            return (await repository.SearchFilmsByNameAsync(searchFilter))
+                .Select(f => FilmEntryDTO.ToDTO(f))
+                .ToList();
         }
 
         // Получение списка всех жанров
-        public async Task<ICollection<string>> GetAllGenresAsync()
-        {
-            try
-            {
-                return await dBContext.Genres
-                    .AsNoTracking()
-                    .Select(g => g.GenreName)
-                    .ToListAsync();
-            } 
-            catch (Exception ex)
-            {
-                logger.LogError("Ошибка при получении жанров: {er}", ex.Message);
-                return [];
-            }
-        }
+        public async Task<ICollection<string>> GetAllGenresAsync() => await repository.GetAllGenresAsync();
         public async Task<FilmDetailsDTO?> GetFilmDetailsAsync(int filmId)
         {
-            try
-            {
-                return await dBContext.Films
-                    .AsNoTracking()
-                    .Where(f => f.Id == filmId)
-                    .Include(f => f.Genres)
-                    .Include(f => f.Actors)
-                    .Select(f => FilmDetailsDTO.ToDTO(f))
-                    .FirstAsync();
-            } 
-            catch (Exception ex)
-            {
-                logger.LogError("Ошибка при получении информации о фильме: {er}", ex.Message);
-                return null;
-            }
-        }
-
-        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, IEnumerable<string> genres)
-        {
-            // Для проверки, что все жанры фильтра присутствуют в фильме
-            // для каждого жанра фильма проверяется, что каждый необходимый
-            // жанр содержится в фильме
-            return films
-                    .Include(f => f.Genres)
-                    .Where(f => genres.All(rg => f.Genres.Select(g => g.GenreName).Contains(rg)));
+            Film? resultFilm = await repository.GetFilmDetailsAsync(filmId);
+            return resultFilm is not null ? FilmDetailsDTO.ToDTO(resultFilm) : null;
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using MauiTestApp.Models.Database;
+using MauiTestApp.Models.Repositories;
+using MauiTestApp.Models.Repositories.Interfaces;
 using MauiTestApp.Services;
 using MauiTestApp.Services.Interfaces;
 using MauiTestApp.ViewModels;
@@ -27,6 +29,7 @@ namespace MauiTestApp
 #endif
             // Регистрирую контекст бд
             builder.Services.AddDbContext<FilmsDBContext>();
+            builder.Services.AddTransient<IFilmsRepository, FilmsRepository>();
             builder.Services.AddTransient<IFilmsService, FilmsService>();
             builder.Services.AddSingleton<SearchViewModel>();
             builder.Services.AddSingleton<FilmDetailsViewModel>();
