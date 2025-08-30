@@ -101,14 +101,14 @@ namespace MauiTestApp.Models.Repositories
             }
         }
 
-        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, IEnumerable<string> genres)
+        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, ICollection<string> genres)
         {
             // Для проверки, что все жанры фильтра присутствуют в фильме
             // для каждого жанра фильма проверяется, что каждый необходимый
             // жанр содержится в фильме
             return films
-                    .Include(f => f.Genres)
-                    .Where(f => genres.All(rg => f.Genres.Select(g => g.GenreName).Contains(rg)));
+                .Include(f => f.Genres)
+                .Where(f => f.Genres.Count(g => genres.Contains(g.GenreName)) == genres.Count);
         }
     }
 }

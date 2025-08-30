@@ -16,7 +16,7 @@ namespace MauiTestApp.Services
     // Фильтр для поиска
     public record SearchFilter(
         string Query,
-        IEnumerable<string> RequiredGenres
+        ICollection<string> RequiredGenres
     );
 
     public class FilmsService(IFilmsRepository repository, ILogger<FilmsService> logger) : IFilmsService

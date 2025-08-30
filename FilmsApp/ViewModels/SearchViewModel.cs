@@ -131,7 +131,7 @@ namespace MauiTestApp.ViewModels
         private async Task SearchFilmsAsync()
         {
             IsLoading = true;
-            SearchFilter filter = new(SearchQuery.ToUpper(), GenresFilter.Where(g => g.IsSelected).Select(g => g.Name));
+            SearchFilter filter = new(SearchQuery.ToUpper(), [.. GenresFilter.Where(g => g.IsSelected).Select(g => g.Name)]);
 
             if (CurrentSearchOption.Type == SearchBy.Name)
                 SearchResults = new ObservableCollection<FilmEntryDTO>(await filmsService.SearchFilmsByNameAsync(filter));
