@@ -18,7 +18,7 @@ namespace MauiTestApp.Services
         IEnumerable<string> RequiredGenres
     );
 
-    internal class FilmsService(FilmsDBContext filmsDBContext, ILogger<FilmsService> logger) : IFilmsService
+    public class FilmsService(FilmsDBContext filmsDBContext, ILogger<FilmsService> logger) : IFilmsService
     {
         private readonly FilmsDBContext dBContext = filmsDBContext;
         private readonly ILogger<FilmsService> logger = logger;
