@@ -16,9 +16,8 @@ namespace MauiTestApp.Models.Database
         public DbSet<Actor> Actors => Set<Actor>();
         public DbSet<FeaturedActor> FeaturedActors => Set<FeaturedActor>();
         public DbSet<Genre> Genres => Set<Genre>();
-        public DbSet<HasGenre> HasGenres => Set<HasGenre>();
+        public DbSet<HasGenre> HasGenre => Set<HasGenre>();
 
-        private readonly string dbPath;
         private readonly ILogger<FilmsDBContext> logger;
         public FilmsDBContext(ILogger<FilmsDBContext> logger)
         {

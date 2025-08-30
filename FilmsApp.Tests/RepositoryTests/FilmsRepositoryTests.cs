@@ -266,7 +266,7 @@ namespace FilmsApp.Tests.RepositoryTests
                 new FeaturedActor() { ActorId = 1, FilmId = 3},
                 new FeaturedActor() { ActorId = 2, FilmId = 3},
                 ]);
-            await db.HasGenres.AddRangeAsync([
+            await db.HasGenre.AddRangeAsync([
                 new HasGenre() { FilmId = 1, GenreId = 1 },
                 new HasGenre() { FilmId = 2, GenreId = 2 },
                 new HasGenre() { FilmId = 3, GenreId = 1 },
