@@ -17,11 +17,11 @@ namespace MauiTestApp.Models.Repositories
         private readonly ILogger logger = logger;
         private readonly FilmsDBContext dBContext = filmsDBContext;
 
+        // Получение всех жанров из бд
         public async Task<ICollection<string>> GetAllGenresAsync()
         {
             try
             {
-                // Получение всех жанров
                 return await dBContext.Genres
                     .AsNoTracking()
                     .Select(g => g.GenreName)
@@ -33,13 +33,12 @@ namespace MauiTestApp.Models.Repositories
                 return [];
             }
         }
-
+        // Получение информации о конкретном фильме
+        // с присоединением жанров и актеров
         public async Task<Film?> GetFilmDetailsAsync(int filmId)
         {
             try
             {
-                // Получение информации о конкретном фильме
-                // с присоединением жанров и актеров
                 return await dBContext.Films
                     .AsNoTracking()
                     .Where(f => f.Id == filmId)
@@ -53,7 +52,7 @@ namespace MauiTestApp.Models.Repositories
                 return null;
             }
         }
-
+        // Поиск по имени актера
         public async Task<ICollection<Film>> SearchFilmsByActorAsync(SearchFilter searchFilter)
         {
             try
@@ -79,7 +78,7 @@ namespace MauiTestApp.Models.Repositories
                 return [];
             }
         }
-        // Поиск по имени актера
+        // Поиск по названию фильма
         public async Task<ICollection<Film>> SearchFilmsByNameAsync(SearchFilter searchFilter)
         {
             try
@@ -100,15 +99,15 @@ namespace MauiTestApp.Models.Repositories
                 return [];
             }
         }
-
-        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, ICollection<string> genres)
+        // Фильтрация по заданным жанрам
+        private static IQueryable<Film> FilterByGenres(IQueryable<Film> films, ICollection<string> requiredGenres)
         {
-            // Для проверки, что все жанры фильтра присутствуют в фильме
-            // для каждого жанра фильма проверяется, что каждый необходимый
-            // жанр содержится в фильме
+            // для каждого фильма из списка жанров отсеиваются
+            // жанры не содержащиеся в requiredGenres. Если итоговый
+            // список соразмерен requiredGenres, то все нужные жанры присутствуют
             return films
                 .Include(f => f.Genres)
-                .Where(f => f.Genres.Count(g => genres.Contains(g.GenreName)) == genres.Count);
+                .Where(f => f.Genres.Count(g => requiredGenres.Contains(g.GenreName)) == requiredGenres.Count);
         }
     }
 }

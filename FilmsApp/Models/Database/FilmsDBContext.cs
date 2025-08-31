@@ -26,7 +26,7 @@ namespace MauiTestApp.Models.Database
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Для вспомогательных сущностей использую составной ключ вместо Id
+            // Для вспомогательных сущностей использую составной ключ
             modelBuilder.Entity<FeaturedActor>()
                 .HasKey(fa => new { fa.ActorId, fa.FilmId });
             modelBuilder.Entity<HasGenre>()

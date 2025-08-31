@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace MauiTestApp.ViewModels.Misc
 {
+    // Вспомогательный класс для выбора жанров в фильтре
     public class SearchGenreSelection
     {
         public bool IsSelected { get; set; }

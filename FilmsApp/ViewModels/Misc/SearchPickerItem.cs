@@ -11,6 +11,7 @@ namespace MauiTestApp.ViewModels.Misc
         Name,
         Actor
     }
+    // Всопмогательный класс для выбора режима поиска
     public class SearchPickerItem
     {
         public SearchBy Type { get; set; }

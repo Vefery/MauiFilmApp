@@ -53,12 +53,14 @@ namespace MauiTestApp.ViewModels
             LoadFilmCommand = new AsyncRelayCommand<int>(LoadFilmDetails);
             BackCommand = new AsyncRelayCommand(GoBack);
         }
+        // Загрузка информации о фильме по его ID
         public async Task LoadFilmDetails(int filmId)
         {
             FilmDetails = await filmsService.GetFilmDetailsAsync(filmId);
             if (FilmDetails is not null)
                 IsLoading = false;
         }
+        // Возвращение на страницу поиска
         public async Task GoBack()
         {
             try

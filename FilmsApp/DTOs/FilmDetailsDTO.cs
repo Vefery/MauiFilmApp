@@ -7,6 +7,7 @@ using MauiTestApp.Models.Database.Entities;
 
 namespace MauiTestApp.DTOs
 {
+    // DTO класс для детальной информации о фильме
     public record FilmDetailsDTO(
         string Name,
         string Description,

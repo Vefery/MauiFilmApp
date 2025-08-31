@@ -32,7 +32,6 @@ namespace MauiTestApp.ViewModels
         public ICommand ToggleFiltersPanelCommand {  get; private set; }
         public IAsyncRelayCommand ShowFilmDetailsCommand {  get; private set; }
 
-        // Простоая ObservableCollection не сработает, т.к. не реагирует на переприсвоение
         public IEnumerable<FilmEntryDTO> SearchResults
         {
             get => searchResults;
