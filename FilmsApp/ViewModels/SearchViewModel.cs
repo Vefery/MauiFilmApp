@@ -88,6 +88,7 @@ namespace MauiTestApp.ViewModels
         private IEnumerable<FilmEntryDTO> searchResults = [];
         private ICollection<SearchGenreSelection> genresFilter = [];
         private ILogger<SearchViewModel> logger;
+        private bool isInitialized;
 
         public SearchViewModel(IFilmsService filmsService, ILogger<SearchViewModel> logger)
         {
@@ -102,13 +103,23 @@ namespace MauiTestApp.ViewModels
             ];
             currentSearchOption = SearchPickerItems.First();
         }
+        // Первичная инициализация фильмов
+        public async Task InotializeFilms()
+        {
+            if (!isInitialized)
+            {
+                await FetchAllGenresAsync();
+                await FetchFilmsAsync();
+                isInitialized = true;
+            }
+        }
         // Получение всех жанров
-        public async Task FetchAllGenresAsync()
+        private async Task FetchAllGenresAsync()
         {
             GenresFilter = (await filmsService.GetAllGenresAsync()).Select(g => new SearchGenreSelection(g)).ToList();
         }
         // Первоначальная подгрузка всех фильмов
-        public async Task FetchFilmsAsync()
+        private async Task FetchFilmsAsync()
         {
             IsLoading = true;
             SearchFilter filter = new(string.Empty, []);
